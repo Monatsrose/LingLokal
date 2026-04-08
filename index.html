@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LingLokal — Learn German & English from real life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,700;1,300;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #2d2530;
+  --paper: #f7f4f8;
+  --cream: #efe9f2;
+  --accent: #b5607a;
+  --accent-light: #f5e0e8;
+  --accent2: #8a6fa0;
+  --accent2-light: #ede5f5;
+  --teal: #5a7a8a;
+  --teal-light: #ddeaf0;
+  --muted: #8a7f90;
+  --border: rgba(45,37,48,0.11);
+  --card: #ffffff;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+  --r: 14px; --r-lg: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* LANDING */
+#screen-landing { background: linear-gradient(160deg,#2d2530 0%,#3d2a3a 60%,#4a2d3f 100%); color: var(--paper); align-items: center; justify-content: center; text-align: center; padding: 40px 24px; position: relative; overflow: hidden; }
+.landing-bg { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 70% 50% at 50% 90%, rgba(181,96,122,0.22) 0%, transparent 65%); }
+.landing-tag { display: inline-block; border: 1px solid rgba(247,244,248,0.2); border-radius: 40px; padding: 4px 14px; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: rgba(247,244,248,0.65); margin-bottom: 28px; }
+.landing-title { font-family: var(--serif); font-size: clamp(40px,8vw,70px); font-weight: 300; line-height: 1.05; letter-spacing: -.02em; margin-bottom: 10px; }
+.landing-title em { font-style: italic; color: #e8a0b8; }
+.landing-sub { font-size: 16px; color: rgba(247,244,248,0.58); max-width: 360px; margin: 0 auto 36px; line-height: 1.75; }
+.landing-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 44px; }
+.landing-pill { background: rgba(247,244,248,0.07); border: 1px solid rgba(247,244,248,0.13); border-radius: 40px; padding: 6px 14px; font-size: 13px; color: rgba(247,244,248,0.7); }
+.btn-primary { background: var(--accent); color: #fff; border: none; border-radius: 40px; padding: 14px 36px; font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; letter-spacing: .01em; transition: opacity .2s, transform .15s; }
+.btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+.landing-note { margin-top: 16px; font-size: 12px; color: rgba(247,244,248,0.3); }
+
+/* ONBOARDING */
+#screen-onboard { background: var(--paper); align-items: center; justify-content: center; padding: 40px 24px; }
+.onboard-wrap { max-width: 440px; width: 100%; }
+.onboard-step { display: none; }
+.onboard-step.active { display: block; animation: fadeUp .3s ease; }
+.onboard-label { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.onboard-q { font-family: var(--serif); font-size: 28px; font-weight: 300; line-height: 1.2; margin-bottom: 28px; }
+.choice-grid { display: grid; gap: 10px; }
+.choice-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--r); padding: 16px 18px; text-align: left; cursor: pointer; transition: border-color .15s, background .15s; font-family: var(--sans); font-size: 15px; color: var(--ink); }
+.choice-btn:hover, .choice-btn.selected { border-color: var(--accent); background: var(--accent-light); }
+.choice-btn .choice-title { font-weight: 500; }
+.choice-btn .choice-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.onboard-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; }
+.btn-ghost { background: none; border: 1.5px solid var(--border); border-radius: 40px; padding: 10px 22px; font-family: var(--sans); font-size: 14px; cursor: pointer; color: var(--muted); transition: border-color .15s; }
+.btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+.onboard-dots { display: flex; gap: 6px; }
+.onboard-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background .2s; }
+.onboard-dot.active { background: var(--accent); }
+
+/* LOADING */
+.loading-screen { background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 40px; }
+.loading-logo { font-family: var(--serif); font-size: 28px; font-weight: 300; margin-bottom: 32px; }
+.loading-spinner { width: 36px; height: 36px; border: 2px solid var(--cream); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 16px; }
+.loading-text { font-size: 14px; color: var(--muted); }
+.loading-steps { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; text-align: left; }
+.loading-step { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.loading-step.done { color: var(--teal); }
+.loading-step.done::before { content: '✓'; }
+.loading-step.active::before { content: '→'; color: var(--accent); }
+.loading-step:not(.done):not(.active)::before { content: '·'; }
+
+/* APP HEADER */
+#screen-app { background: var(--paper); }
+.app-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.app-logo { font-family: var(--serif); font-size: 20px; font-weight: 500; }
+.app-logo span { color: var(--accent); }
+.header-stats { display: flex; gap: 14px; align-items: center; }
+.stat-chip { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.stat-chip strong { color: var(--ink); font-weight: 500; }
+.app-body { padding: 18px; max-width: 520px; margin: 0 auto; }
+
+/* PET PANEL */
+.pet-panel { background: linear-gradient(135deg,#f5e0e8 0%,#ede5f5 100%); border-radius: var(--r-lg); padding: 16px 20px; margin-bottom: 18px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(181,96,122,0.15); cursor: pointer; transition: box-shadow .2s; }
+.pet-panel:hover { box-shadow: 0 2px 12px rgba(181,96,122,0.15); }
+.pet-info { flex: 1; min-width: 0; }
+.pet-name { font-weight: 500; font-size: 15px; }
+.pet-mood { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.pet-xp-bar { height: 5px; background: rgba(181,96,122,0.15); border-radius: 5px; overflow: hidden; margin-top: 8px; }
+.pet-xp-fill { height: 100%; background: var(--accent); border-radius: 5px; transition: width .6s ease; }
+.pet-lv { font-size: 11px; font-weight: 500; background: var(--accent); color: #fff; border-radius: 20px; padding: 3px 10px; flex-shrink: 0; }
+
+/* UNLOCK TOAST */
+.unlock-toast { display: none; background: var(--ink); color: var(--paper); border-radius: var(--r); padding: 12px 16px; margin-bottom: 14px; font-size: 13px; animation: fadeUp .3s ease; }
+.unlock-toast.visible { display: flex; align-items: center; gap: 10px; }
+
+/* DIRECTION / VIDEO / PROGRESS / TABS */
+.dir-toggle { display: flex; background: var(--cream); border-radius: 40px; padding: 3px; margin-bottom: 18px; gap: 2px; }
+.dir-btn { flex: 1; border: none; background: none; border-radius: 40px; padding: 8px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all .2s; }
+.dir-btn.active { background: var(--card); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.video-card { background: var(--ink); color: var(--paper); border-radius: var(--r-lg); padding: 16px; display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
+.video-thumb { width: 54px; height: 54px; border-radius: 10px; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.video-info { flex: 1; min-width: 0; }
+.video-title { font-weight: 500; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.video-meta { font-size: 12px; color: rgba(247,244,248,.5); margin-top: 3px; }
+.level-badge { font-size: 11px; font-weight: 500; background: var(--accent); color: #fff; border-radius: 20px; padding: 3px 9px; flex-shrink: 0; }
+.progress-bar-wrap { margin-bottom: 18px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.progress-bar { height: 4px; background: var(--cream); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width .4s ease; }
+.tab-row { display: flex; gap: 2px; background: var(--cream); border-radius: 40px; padding: 3px; margin-bottom: 18px; }
+.tab-btn { flex: 1; border: none; background: none; border-radius: 40px; padding: 8px 6px; font-family: var(--sans); font-size: 13px; cursor: pointer; color: var(--muted); transition: all .2s; }
+.tab-btn.active { background: var(--card); color: var(--ink); font-weight: 500; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+/* EXPRESSIONS */
+.expr-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s; }
+.expr-card:hover { border-color: rgba(45,37,48,.22); }
+.expr-card.open { border-color: var(--accent); }
+.expr-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.expr-de { font-family: var(--serif); font-size: 18px; font-weight: 300; line-height: 1.2; }
+.expr-en { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.expr-level { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; }
+.level-a2 { background: var(--teal-light); color: var(--teal); }
+.level-b1 { background: var(--accent2-light); color: var(--accent2); }
+.level-b2 { background: var(--accent-light); color: var(--accent); }
+.expr-detail { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.expr-card.open .expr-detail { display: block; }
+.expr-quote { font-style: italic; font-size: 14px; color: var(--ink); line-height: 1.6; margin-bottom: 6px; }
+.expr-quote-en { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.expr-timestamp { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.false-friend { background: #fff8e8; border-left: 3px solid #d4a030; border-radius: 0 6px 6px 0; padding: 8px 12px; font-size: 12px; color: #7a5800; margin-top: 8px; }
+
+/* CHALLENGE */
+.challenge-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; margin-bottom: 14px; }
+.challenge-num { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+.challenge-prompt { font-family: var(--serif); font-size: 20px; font-weight: 300; line-height: 1.35; margin-bottom: 6px; }
+.challenge-hint { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.challenge-input { width: 100%; border: 1.5px solid var(--border); border-radius: var(--r); padding: 12px 14px; font-family: var(--sans); font-size: 15px; color: var(--ink); background: var(--paper); resize: none; outline: none; transition: border-color .15s; line-height: 1.5; }
+.challenge-input:focus { border-color: var(--accent); }
+.challenge-actions { display: flex; gap: 8px; margin-top: 10px; }
+.btn-check { flex: 1; padding: 11px; border-radius: var(--r); border: 1.5px solid var(--border); background: none; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; color: var(--ink); transition: all .15s; }
+.btn-check:hover { border-color: var(--ink); }
+.btn-submit { flex: 1; padding: 11px; border-radius: var(--r); border: none; background: var(--ink); color: var(--paper); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
+.btn-submit:hover { opacity: .85; }
+.feedback-box { margin-top: 10px; padding: 10px 14px; border-radius: var(--r); font-size: 13px; display: none; }
+.feedback-box.good { background: var(--teal-light); color: var(--teal); display: block; }
+.feedback-box.close { background: #fff8e8; color: #7a5800; display: block; }
+.feedback-box.try { background: var(--accent-light); color: var(--accent); display: block; }
+
+/* CHAT */
+.chat-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.chat-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.ai-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--ink); display: flex; align-items: center; justify-content: center; }
+.ai-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--paper); }
+.chat-name { font-size: 14px; font-weight: 500; }
+.chat-sub { font-size: 12px; color: var(--muted); }
+.chat-badge { font-size: 11px; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 3px 9px; }
+.chat-messages { padding: 16px; display: flex; flex-direction: column; gap: 12px; min-height: 200px; }
+.msg { max-width: 85%; font-size: 14px; line-height: 1.6; }
+.msg-ai { background: var(--cream); border-radius: 4px 14px 14px 14px; padding: 10px 14px; align-self: flex-start; }
+.msg-user { background: var(--ink); color: var(--paper); border-radius: 14px 4px 14px 14px; padding: 10px 14px; align-self: flex-end; }
+.msg-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+.chat-input-row { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--border); align-items: flex-end; }
+.chat-input { flex: 1; border: 1.5px solid var(--border); border-radius: var(--r); padding: 9px 13px; font-family: var(--sans); font-size: 14px; color: var(--ink); background: var(--paper); outline: none; resize: none; min-height: 38px; transition: border-color .15s; }
+.chat-input:focus { border-color: var(--accent); }
+.btn-send { width: 38px; height: 38px; border-radius: 10px; background: var(--accent); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity .15s; }
+.btn-send:hover { opacity: .85; }
+.chat-chips { padding: 0 14px 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.chat-chip { font-size: 12px; border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; cursor: pointer; background: none; font-family: var(--sans); color: var(--muted); transition: all .15s; }
+.chat-chip:hover { border-color: var(--accent); color: var(--accent); }
+.thinking { display: none; }
+.thinking.visible { display: flex; }
+.typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1.2s ease-in-out infinite; display: inline-block; margin: 10px 2px; }
+.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
+
+/* SUMMARY */
+.summary-hero { background: var(--ink); color: var(--paper); border-radius: var(--r-lg); padding: 24px; text-align: center; margin-bottom: 16px; }
+.summary-num { font-family: var(--serif); font-size: 56px; font-weight: 300; line-height: 1; margin-bottom: 4px; color: #e8a0b8; }
+.summary-label { font-size: 13px; color: rgba(247,244,248,.5); }
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.stat-card .num { font-family: var(--serif); font-size: 28px; font-weight: 300; }
+.stat-card .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.map-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 10px; }
+.map-city { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 6px; text-align: center; font-size: 11px; color: var(--muted); }
+.map-city.unlocked { border-color: rgba(181,96,122,0.3); background: var(--accent-light); color: var(--accent); font-weight: 500; }
+.map-city.locked { opacity: .45; }
+.map-city-icon { font-size: 20px; display: block; margin-bottom: 3px; }
+.reward-track { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 16px; }
+.reward-bar { display: flex; height: 4px; border-radius: 4px; overflow: hidden; margin: 10px 0 6px; }
+.reward-bar-fill { background: var(--accent); }
+.reward-bar-empty { background: var(--cream); flex: 1; }
+.reward-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.review-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.review-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.review-dot.good { background: var(--teal); }
+.review-dot.needs { background: var(--accent); }
+.review-de { font-family: var(--serif); font-size: 16px; font-weight: 300; }
+.review-en { font-size: 12px; color: var(--muted); }
+.next-btn { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 40px; font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
+.next-btn:hover { opacity: .88; }
+
+.pane { display: none; }
+.pane.active { display: block; animation: fadeUp .25s ease; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes blink { 0%,80%,100%{opacity:.3} 40%{opacity:1} }
+@keyframes spin { to{transform:rotate(360deg)} }
+@keyframes petBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="screen-landing" class="screen active">
+  <div class="landing-bg"></div>
+  <div class="landing-tag">Real language · Real life · Real rewards</div>
+  <!-- Mascot -->
+  <div style="margin:0 auto 24px">
+    <svg width="88" height="88" viewBox="0 0 90 90" style="filter:drop-shadow(0 4px 18px rgba(181,96,122,0.35))">
+      <ellipse cx="45" cy="74" rx="22" ry="6" fill="rgba(181,96,122,0.18)"/>
+      <ellipse cx="22" cy="20" rx="10" ry="13" fill="#f5e0e8"/><ellipse cx="22" cy="20" rx="6" ry="9" fill="#e8b8c8"/>
+      <ellipse cx="68" cy="20" rx="10" ry="13" fill="#f5e0e8"/><ellipse cx="68" cy="20" rx="6" ry="9" fill="#e8b8c8"/>
+      <circle cx="45" cy="44" r="29" fill="#fdf0f4"/>
+      <circle cx="35" cy="41" r="5" fill="#2d2530"/><circle cx="55" cy="41" r="5" fill="#2d2530"/>
+      <circle cx="37" cy="39" r="2" fill="white"/><circle cx="57" cy="39" r="2" fill="white"/>
+      <ellipse cx="45" cy="51" rx="8" ry="5" fill="#e8b8c8"/>
+      <path d="M40 51 Q45 56 50 51" stroke="#c87090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="28" cy="49" rx="6" ry="4" fill="rgba(181,96,122,0.25)"/>
+      <ellipse cx="62" cy="49" rx="6" ry="4" fill="rgba(181,96,122,0.25)"/>
+      <text x="57" y="16" font-size="15" fill="#b5607a">★</text>
+    </svg>
+  </div>
+  <h1 class="landing-title">Learn German<br><em>&amp; English</em><br>together.</h1>
+  <p class="landing-sub">Daily expressions from real YouTube vlogs — curated by AI, practiced with your personal AI tutor. Grow your pet companion as you grow your language skills.</p>
+  <div class="landing-pills">
+    <span class="landing-pill">5 min/day</span>
+    <span class="landing-pill">Real vlog content</span>
+    <span class="landing-pill">Pet rewards</span>
+    <span class="landing-pill">EN ↔ DE</span>
+  </div>
+  <button class="btn-primary" onclick="goTo('screen-onboard')">Meet your pet &amp; start</button>
+  <p class="landing-note">No signup · No app download · Free demo</p>
+</div>
+
+<!-- ONBOARDING -->
+<div id="screen-onboard" class="screen">
+  <div class="onboard-wrap" style="padding:48px 24px 40px;max-width:440px;margin:0 auto;width:100%">
+    <div class="onboard-step active" id="ob-1">
+      <div class="onboard-label">Step 1 of 3</div>
+      <h2 class="onboard-q">What's your German level?</h2>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="sel(this)"><div class="choice-title">Beginner (A1–A2)</div><div class="choice-sub">I know some basics and common words</div></button>
+        <button class="choice-btn" onclick="sel(this)"><div class="choice-title">Intermediate (B1–B2)</div><div class="choice-sub">I can follow slow conversations</div></button>
+        <button class="choice-btn" onclick="sel(this)"><div class="choice-title">Advanced (C1+)</div><div class="choice-sub">I understand most natural speech</div></button>
+      </div>
+      <div class="onboard-nav">
+        <div class="onboard-dots"><div class="onboard-dot active"></div><div class="onboard-dot"></div><div class="onboard-dot"></div></div>
+        <button class="btn-primary" onclick="nextOb(2)" style="padding:10px 24px;font-size:14px">Next →</button>
+      </div>
+    </div>
+    <div class="onboard-step" id="ob-2">
+      <div class="onboard-label">Step 2 of 3</div>
+      <h2 class="onboard-q">What content do you enjoy?</h2>
+      <div class="choice-grid">
+        <button class="choice-btn" onclick="sel(this)"><div class="choice-title">Daily life &amp; vlogs</div><div class="choice-sub">Morning routines, city walks, cooking</div></button>
+        <button class="choice-btn" onclick="sel(this)"><div class="choice-title">Travel &amp; culture</div><div class="choice-sub">City guides, local tips, lifestyle</div></button>
+        <button class="choice-btn" onclick="sel(this)"><div class="choice-title">Interviews &amp; conversation</div><div class="choice-sub">Real talks, opinions, everyday debates</div></button>
+      </div>
+      <div class="onboard-nav">
+        <button class="btn-ghost" onclick="nextOb(1)">← Back</button>
+        <div class="onboard-dots"><div class="onboard-dot"></div><div class="onboard-dot active"></div><div class="onboard-dot"></div></div>
+        <button class="btn-primary" onclick="nextOb(3)" style="padding:10px 24px;font-size:14px">Next →</button>
+      </div>
+    </div>
+    <div class="onboard-step" id="ob-3">
+      <div class="onboard-label">Step 3 of 3</div>
+      <h2 class="onboard-q">Name your pet companion!</h2>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:20px">Your pet grows as you learn. Complete daily sessions to unlock new cities your pet can visit, new accessories, and bonus video packs.</p>
+      <div style="text-align:center;margin-bottom:20px">
+        <svg width="70" height="70" viewBox="0 0 90 90" style="animation:petBounce 2s ease-in-out infinite">
+          <ellipse cx="22" cy="22" rx="10" ry="13" fill="#f5e0e8"/><ellipse cx="22" cy="22" rx="6" ry="9" fill="#e8b8c8"/>
+          <ellipse cx="68" cy="22" rx="10" ry="13" fill="#f5e0e8"/><ellipse cx="68" cy="22" rx="6" ry="9" fill="#e8b8c8"/>
+          <circle cx="45" cy="45" r="29" fill="#fdf0f4"/>
+          <circle cx="35" cy="43" r="5" fill="#2d2530"/><circle cx="55" cy="43" r="5" fill="#2d2530"/>
+          <circle cx="37" cy="41" r="2" fill="white"/><circle cx="57" cy="41" r="2" fill="white"/>
+          <ellipse cx="45" cy="53" rx="8" ry="5" fill="#e8b8c8"/>
+          <path d="M40 53 Q45 58 50 53" stroke="#c87090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="28" cy="51" rx="6" ry="4" fill="rgba(181,96,122,0.25)"/>
+          <ellipse cx="62" cy="51" rx="6" ry="4" fill="rgba(181,96,122,0.25)"/>
+        </svg>
+      </div>
+      <input id="pet-name-input" type="text" placeholder="e.g. Mochi, Luna, Bär…"
+        style="width:100%;border:1.5px solid var(--border);border-radius:var(--r);padding:13px 16px;font-family:var(--sans);font-size:16px;color:var(--ink);background:var(--card);outline:none;transition:border-color .15s"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"/>
+      <div class="onboard-nav" style="margin-top:20px">
+        <button class="btn-ghost" onclick="nextOb(2)">← Back</button>
+        <div class="onboard-dots"><div class="onboard-dot"></div><div class="onboard-dot"></div><div class="onboard-dot active"></div></div>
+        <button class="btn-primary" onclick="startLoading()" style="padding:10px 24px;font-size:14px">Let's go →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="screen-loading" class="screen">
+  <div class="loading-screen">
+    <div class="loading-logo">LingLokal</div>
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Preparing today's pack…</div>
+    <div class="loading-steps">
+      <div class="loading-step active" id="ls-0">Finding today's YouTube vlog</div>
+      <div class="loading-step" id="ls-1">AI extracting best expressions</div>
+      <div class="loading-step" id="ls-2">Aligning EN ↔ DE sentence pairs</div>
+      <div class="loading-step" id="ls-3">Building your challenges</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="screen-app" class="screen">
+  <header class="app-header">
+    <div class="app-logo">Ling<span>Lokal</span></div>
+    <div class="header-stats">
+      <div class="stat-chip">🔥<strong id="hdr-streak">7</strong></div>
+      <div class="stat-chip">⭐<strong id="hdr-xp">240</strong></div>
+    </div>
+  </header>
+  <div class="app-body">
+
+    <!-- unlock toast -->
+    <div class="unlock-toast" id="unlock-toast">
+      <span style="font-size:20px">🎉</span>
+      <span id="unlock-msg">New city unlocked!</span>
+    </div>
+
+    <!-- pet panel -->
+    <div class="pet-panel" onclick="switchTab('summary')">
+      <svg width="58" height="58" viewBox="0 0 90 90" style="flex-shrink:0;animation:petBounce 2.5s ease-in-out infinite">
+        <ellipse cx="22" cy="22" rx="10" ry="13" fill="#f5e0e8"/><ellipse cx="22" cy="22" rx="6" ry="9" fill="#e8b8c8"/>
+        <ellipse cx="68" cy="22" rx="10" ry="13" fill="#f5e0e8"/><ellipse cx="68" cy="22" rx="6" ry="9" fill="#e8b8c8"/>
+        <circle cx="45" cy="45" r="29" fill="#fdf0f4"/>
+        <circle cx="35" cy="43" r="5" fill="#2d2530"/><circle cx="55" cy="43" r="5" fill="#2d2530"/>
+        <circle cx="37" cy="41" r="2" fill="white"/><circle cx="57" cy="41" r="2" fill="white"/>
+        <ellipse cx="45" cy="53" rx="8" ry="5" fill="#e8b8c8"/>
+        <path d="M40 53 Q45 58 50 53" stroke="#c87090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="28" cy="51" rx="6" ry="4" fill="rgba(181,96,122,0.25)"/>
+        <ellipse cx="62" cy="51" rx="6" ry="4" fill="rgba(181,96,122,0.25)"/>
+        <text id="pet-star" x="57" y="16" font-size="14" fill="#b5607a" style="display:none">★</text>
+      </svg>
+      <div class="pet-info">
+        <div class="pet-name" id="pet-name-display">Mochi</div>
+        <div class="pet-mood">Happy · Lv 2 · 3 cities visited</div>
+        <div class="pet-xp-bar"><div class="pet-xp-fill" id="pet-xp-fill" style="width:35%"></div></div>
+      </div>
+      <div class="pet-lv">Lv 2</div>
+    </div>
+
+    <div class="dir-toggle">
+      <button class="dir-btn active" onclick="setDir('en-de',this)">EN → DE</button>
+      <button class="dir-btn" onclick="setDir('de-en',this)">DE → EN</button>
+    </div>
+
+    <div class="video-card">
+      <div class="video-thumb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(247,244,248,0.7)" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+      <div class="video-info">
+        <div class="video-title">Ein Tag in Berlin — Markt, Café, Freunde</div>
+        <div class="video-meta">Easy German · 11 min · published today</div>
+      </div>
+      <div class="level-badge">B1</div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-label"><span>Today's session</span><span id="prog-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-expressions" onclick="switchTab('expressions')">Expressions</button>
+      <button class="tab-btn" id="tab-challenge" onclick="switchTab('challenge')">Challenge</button>
+      <button class="tab-btn" id="tab-chat" onclick="switchTab('chat')">AI Chat</button>
+      <button class="tab-btn" id="tab-summary" onclick="switchTab('summary')">Summary</button>
+    </div>
+
+    <!-- EXPRESSIONS PANE -->
+    <div class="pane active" id="pane-expressions">
+      <div id="expr-list"></div>
+      <button class="next-btn" style="margin-top:8px" onclick="switchTab('challenge');updateProg(40)">Go to challenge →</button>
+    </div>
+
+    <!-- CHALLENGE PANE -->
+    <div class="pane" id="pane-challenge">
+      <div id="challenge-container"></div>
+    </div>
+
+    <!-- CHAT PANE -->
+    <div class="pane" id="pane-chat">
+      <div class="chat-wrap">
+        <div class="chat-header">
+          <div class="ai-avatar"><div class="ai-dot"></div></div>
+          <div style="flex:1">
+            <div class="chat-name">Lena — AI partner</div>
+            <div class="chat-sub">Uses today's expressions · corrects gently</div>
+          </div>
+          <span class="chat-badge">Mixed mode</span>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg msg-ai">
+            <div class="msg-label">Lena</div>
+            Hallo! Schön, dass du da bist. <span style="color:var(--muted);font-size:12px">(Hello! Glad you're here.)</span><br><br>
+            Lass uns über deinen Tag reden — was hast du heute so gemacht? Feel free to mix German and English!
+          </div>
+        </div>
+        <div class="thinking" id="thinking-indicator">
+          <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+        </div>
+        <div class="chat-chips">
+          <button class="chat-chip" onclick="sendChip(this)">Ich war zu Hause</button>
+          <button class="chat-chip" onclick="sendChip(this)">I went to the market</button>
+          <button class="chat-chip" onclick="sendChip(this)">Ich bin gespannt auf morgen</button>
+        </div>
+        <div class="chat-input-row">
+          <textarea class="chat-input" id="chat-input" placeholder="Schreib auf Deutsch oder English…" rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+          <button class="btn-send" onclick="sendChat()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY PANE -->
+    <div class="pane" id="pane-summary">
+      <div class="summary-hero">
+        <div class="summary-num">5</div>
+        <div class="summary-label">expressions learned today</div>
+      </div>
+      <div class="summary-grid">
+        <div class="stat-card"><div class="num">7</div><div class="lbl">🔥 day streak</div></div>
+        <div class="stat-card"><div class="num">80%</div><div class="lbl">challenge accuracy</div></div>
+        <div class="stat-card"><div class="num" id="sum-time">8 min</div><div class="lbl">time today</div></div>
+        <div class="stat-card"><div class="num">+35</div><div class="lbl">⭐ XP earned</div></div>
+      </div>
+
+      <!-- pet city map -->
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+        <span id="pet-name-map">Mochi</span>'s travel map
+        <span style="font-size:12px;color:var(--muted);font-weight:400">Complete sessions to unlock</span>
+      </div>
+      <div class="map-grid">
+        <div class="map-city unlocked"><span class="map-city-icon">🏙️</span>Berlin</div>
+        <div class="map-city unlocked"><span class="map-city-icon">🎡</span>Wien</div>
+        <div class="map-city unlocked"><span class="map-city-icon">⛪</span>München</div>
+        <div class="map-city locked"><span class="map-city-icon">🔒</span>Hamburg</div>
+        <div class="map-city locked"><span class="map-city-icon">🔒</span>Zürich</div>
+        <div class="map-city locked"><span class="map-city-icon">🔒</span>Köln</div>
+        <div class="map-city locked"><span class="map-city-icon">🔒</span>London</div>
+        <div class="map-city locked"><span class="map-city-icon">🔒</span>NYC</div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);text-align:center;margin:8px 0 16px">5 more sessions → unlock Hamburg 🏙️</p>
+
+      <!-- reward track -->
+      <div class="reward-track">
+        <div style="font-size:13px;font-weight:500">Reward track — Level 2 → 3</div>
+        <div class="reward-bar">
+          <div class="reward-bar-fill" style="flex:2"></div>
+          <div class="reward-bar-empty"></div>
+        </div>
+        <div class="reward-labels">
+          <span>★ Star accessory</span><span>🏙 Hamburg</span><span>🎭 New skin</span>
+        </div>
+      </div>
+
+      <div style="font-size:14px;font-weight:500;margin-bottom:10px">Today's expressions — review tomorrow</div>
+      <div id="expr-review-list"></div>
+      <button class="next-btn" style="margin-top:16px" onclick="finishSession()">Done for today ✓</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const EXPR = [
+  {de:"Das macht Sinn",en:"That makes sense",lv:"A2",lc:"level-a2",ts:"1:42",qDE:'"Das macht total Sinn, weil ich das jeden Tag erlebe."',qEN:'"That makes total sense, because I experience it every day."',ff:null},
+  {de:"Ich bin gespannt",en:"I'm excited / curious to see",lv:"B1",lc:"level-b1",ts:"3:18",qDE:'"Ich bin so gespannt, wie der Markt heute wird!"',qEN:'"I\'m so excited to see what the market is like today!"',ff:"⚠ False friend: 'gespannt' ≠ 'spanned'. It means eager anticipation."},
+  {de:"Auf jeden Fall",en:"Definitely / absolutely",lv:"A2",lc:"level-a2",ts:"5:07",qDE:'"Auf jeden Fall komme ich wieder hierher."',qEN:'"I\'m definitely coming back here again."',ff:null},
+  {de:"Das ist mir egal",en:"I don't care / it doesn't matter",lv:"B1",lc:"level-b1",ts:"7:33",qDE:'"Ob Regen oder Sonne — das ist mir egal, ich gehe trotzdem raus."',qEN:'"Rain or sun — I don\'t care, I\'m going out anyway."',ff:null},
+  {de:"Na ja",en:"Well… / I mean… (hedging)",lv:"B2",lc:"level-b2",ts:"9:55",qDE:'"Na ja, es war okay, aber nicht so toll wie letztes Mal."',qEN:'"Well, it was okay, but not as great as last time."',ff:"⚠ No direct English equivalent — closest: 'I mean…' or 'Well…'"}
+];
+const CH_ENDE=[
+  {p:'"I\'m definitely not going out in this rain — that makes sense, right?"',h:"Use 'Auf jeden Fall' and 'Das macht Sinn'",a:"Ich gehe auf jeden Fall nicht bei diesem Regen raus — das macht Sinn, oder?",kw:["auf jeden fall","das macht sinn"],c:"Great use of both phrases! 'Oder?' is a natural tag question."},
+  {p:'"Well, I\'m curious to see what happens. I don\'t really care either way."',h:"Use 'Na ja', 'gespannt', and 'egal'",a:"Na ja, ich bin gespannt, was passiert. Das ist mir eigentlich egal.",kw:["na ja","gespannt","egal"],c:"'Eigentlich' adds a nice nuance — it means 'actually/really'."}
+];
+const CH_DEEN=[
+  {p:'"Na ja, ich bin gespannt, ob das Café heute auf ist."',h:"Translate naturally — 'gespannt' = eager anticipation",a:"Well, I'm curious to see whether the café is open today.",kw:["curious","well","open"],c:"'Whether' is more precise than 'if' in this context."},
+  {p:'"Das ist mir egal — auf jeden Fall bleibe ich zu Hause."',h:"Two expressions in one sentence",a:"I don't care — I'm definitely staying home.",kw:["don't care","definitely"],c:"Perfect — both idioms translated naturally!"}
+];
+
+let dir='en-de', chatHistory=[], ch1done=false, petName='Mochi', startTime=Date.now();
+
+function goTo(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function sel(btn){btn.closest('.choice-grid').querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
+function nextOb(n){document.querySelectorAll('.onboard-step').forEach(s=>s.classList.remove('active'));document.getElementById('ob-'+n).classList.add('active');}
+
+function startLoading(){
+  const v=document.getElementById('pet-name-input').value.trim();
+  if(v) petName=v;
+  document.getElementById('pet-name-display').textContent=petName;
+  document.getElementById('pet-name-map').textContent=petName;
+  goTo('screen-loading');
+  [0,1,2,3].forEach((i,idx)=>{
+    setTimeout(()=>{
+      document.querySelectorAll('.loading-step').forEach(s=>s.classList.remove('active','done'));
+      document.getElementById('ls-'+i).classList.add('active');
+      if(idx>0) document.getElementById('ls-'+(i-1)).classList.add('done');
+      if(idx===3) setTimeout(()=>{document.getElementById('ls-3').classList.add('done');buildApp();goTo('screen-app');},700);
+    },idx*900);
+  });
+}
+
+function buildApp(){buildExpr();buildChallenges();buildSummary();}
+
+function buildExpr(){
+  document.getElementById('expr-list').innerHTML=EXPR.map(e=>`
+    <div class="expr-card" onclick="toggleExpr(this)">
+      <div class="expr-head"><div><div class="expr-de">${e.de}</div><div class="expr-en">${e.en}</div></div><span class="expr-level ${e.lc}">${e.lv}</span></div>
+      <div class="expr-detail">
+        <div class="expr-timestamp">📍 From the video — ${e.ts}</div>
+        <div class="expr-quote">${e.qDE}</div><div class="expr-quote-en">${e.qEN}</div>
+        ${e.ff?`<div class="false-friend">${e.ff}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+function toggleExpr(c){const was=c.classList.contains('open');document.querySelectorAll('.expr-card').forEach(x=>x.classList.remove('open'));if(!was)c.classList.add('open');}
+
+function buildChallenges(){
+  const ch=dir==='en-de'?CH_ENDE:CH_DEEN;
+  document.getElementById('challenge-container').innerHTML=ch.map((c,i)=>`
+    <div class="challenge-card">
+      <div class="challenge-num">Challenge ${i+1} of ${ch.length} — ${dir==='en-de'?'Translate into German':'Translate into English'}</div>
+      <div class="challenge-prompt">${c.p}</div>
+      <div class="challenge-hint">💡 ${c.h}</div>
+      <textarea class="challenge-input" id="ci-${i}" rows="2" placeholder="Type your translation…" ${i===1&&!ch1done?'disabled style="opacity:.5"':''} oninput="clearFB(${i})"></textarea>
+      <div class="challenge-actions"><button class="btn-check" onclick="checkCh(${i})">Check</button><button class="btn-submit" onclick="showSol(${i})">Show answer</button></div>
+      <div class="feedback-box" id="fb-${i}"></div>
+    </div>`).join('');
+}
+function clearFB(i){document.getElementById('fb-'+i).className='feedback-box';}
+function checkCh(i){
+  const ch=dir==='en-de'?CH_ENDE:CH_DEEN;
+  const val=(document.getElementById('ci-'+i).value||'').toLowerCase();
+  const fb=document.getElementById('fb-'+i);
+  if(!val.trim()){fb.className='feedback-box try';fb.textContent='Write something first!';return;}
+  const hits=ch[i].kw.filter(k=>val.includes(k)).length;
+  if(hits===ch[i].kw.length){fb.className='feedback-box good';fb.textContent='✓ '+ch[i].c;if(i===0){ch1done=true;unlock2();updateProg(70);awardXP();}if(i===1)updateProg(85);}
+  else if(hits>0){fb.className='feedback-box close';fb.textContent=`Almost! Found ${hits}/${ch[i].kw.length} key expressions.`;}
+  else{fb.className='feedback-box try';fb.textContent='Try including the hint expressions.';}
+}
+function showSol(i){const ch=dir==='en-de'?CH_ENDE:CH_DEEN;document.getElementById('ci-'+i).value=ch[i].a;const fb=document.getElementById('fb-'+i);fb.className='feedback-box close';fb.textContent=ch[i].c;if(i===0){ch1done=true;unlock2();}}
+function unlock2(){const t=document.getElementById('ci-1');if(t){t.disabled=false;t.style.opacity='1';}}
+function setDir(d,btn){dir=d;ch1done=false;document.querySelectorAll('.dir-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');buildChallenges();}
+function switchTab(n){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');document.getElementById('pane-'+n).classList.add('active');window.scrollTo(0,0);}
+function updateProg(p){document.getElementById('prog-fill').style.width=p+'%';document.getElementById('prog-pct').textContent=p+'%';}
+function awardXP(){
+  const cur=parseInt(document.getElementById('hdr-xp').textContent)||240;
+  document.getElementById('hdr-xp').textContent=cur+15;
+  document.getElementById('pet-xp-fill').style.width='60%';
+  document.getElementById('pet-star').style.display='block';
+  const t=document.getElementById('unlock-toast');
+  document.getElementById('unlock-msg').textContent='+15 XP! '+petName+' is getting closer to Hamburg 🏙️';
+  t.classList.add('visible');setTimeout(()=>t.classList.remove('visible'),4000);
+}
+
+const SYSTEM=`You are Lena, a friendly bilingual language tutor helping users learn German and English using real YouTube vlog expressions.
+Today's expressions (from "Ein Tag in Berlin"):
+1. "Das macht Sinn" — That makes sense
+2. "Ich bin gespannt" — I'm excited/curious to see
+3. "Auf jeden Fall" — Definitely/absolutely
+4. "Das ist mir egal" — I don't care / it doesn't matter
+5. "Na ja" — Well… / I mean…
+Rules: Write mostly German with English hints in parentheses. Use today's expressions naturally. Gently correct grammar mistakes with a friendly emoji. Acknowledge correct expression use warmly. Keep replies SHORT — 2-4 sentences. Be warm and casual.`;
+
+async function callAI(msg){
+  chatHistory.push({role:'user',content:msg});
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:chatHistory})});
+    const d=await r.json();
+    const text=d.content?.find(b=>b.type==='text')?.text||'Entschuldigung — etwas ist schiefgelaufen!';
+    chatHistory.push({role:'assistant',content:text});return text;
+  }catch(e){return 'Entschuldigung! (Sorry!) — connection issue. Try again!';}
+}
+function addMsg(content,type){
+  const wrap=document.getElementById('chat-messages');
+  const div=document.createElement('div');div.className='msg msg-'+type;
+  div.innerHTML=type==='ai'?'<div class="msg-label">Lena</div>'+content:content;
+  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;
+}
+async function sendChat(){
+  const inp=document.getElementById('chat-input');const msg=inp.value.trim();if(!msg)return;
+  inp.value='';addMsg(msg,'user');
+  document.getElementById('thinking-indicator').classList.add('visible');
+  const reply=await callAI(msg);
+  document.getElementById('thinking-indicator').classList.remove('visible');
+  addMsg(reply,'ai');updateProg(95);
+}
+function sendChip(btn){document.getElementById('chat-input').value=btn.textContent;btn.style.opacity='.4';btn.disabled=true;sendChat();}
+
+function buildSummary(){
+  document.getElementById('expr-review-list').innerHTML=EXPR.map((e,i)=>`
+    <div class="review-item">
+      <div class="review-dot ${i<3?'good':'needs'}"></div>
+      <div><div class="review-de">${e.de}</div><div class="review-en">${e.en}</div></div>
+      <span class="expr-level ${e.lc}" style="margin-left:auto">${e.lv}</span>
+    </div>`).join('');
+  const mins=Math.max(1,Math.round((Date.now()-startTime)/60000));
+  document.getElementById('sum-time').textContent=mins+' min';
+}
+function finishSession(){
+  updateProg(100);document.getElementById('pet-xp-fill').style.width='80%';
+  const t=document.getElementById('unlock-toast');
+  document.getElementById('unlock-msg').textContent='🎉 Session complete! '+petName+' is happy — 5 more to unlock Hamburg!';
+  t.classList.add('visible');setTimeout(()=>{t.classList.remove('visible');goTo('screen-landing');},3000);
+}
+buildApp();
+</script>
+</body>
+</html>
